@@ -161,7 +161,7 @@ def main():
             )
         
         # Задача для отправки уведомления в день ДР в 9 утра по алматинскому времени
-        notify_birthday = datetime.combine(birthday, time(15, 40, 0))
+        notify_birthday = datetime.combine(birthday, time(15, 46, 0))
         notify_birthday = tz.localize(notify_birthday)
         
         if notify_birthday >= now:
