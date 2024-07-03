@@ -1,3 +1,6 @@
+import os
+os.environ['TZ'] = 'Asia/Almaty'
+
 import logging
 from datetime import datetime, timedelta, time
 from pytz import timezone
@@ -161,7 +164,7 @@ def main():
             )
         
         # Задача для отправки уведомления в день ДР в 9 утра по алматинскому времени
-        notify_birthday = datetime.combine(birthday, time(15, 46, 0))
+        notify_birthday = datetime.combine(birthday, time(15, 59, 0))
         notify_birthday = tz.localize(notify_birthday)
         
         if notify_birthday >= now:
