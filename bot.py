@@ -1,5 +1,4 @@
-import os
-os.environ['TZ'] = 'Asia/Almaty'
+
 
 import logging
 from datetime import datetime, timedelta, time
@@ -148,36 +147,32 @@ def main():
     # Текущая дата и время
     now = datetime.now(tz)
     
-    # Задача для отправки уведомления за день до ДР в 6 вечера
-    for person in people:
-        birthday = datetime.strptime(person['birthday'], '%Y-%m-%d').date()
+   
         
-        notify_day_before = datetime.combine(birthday - timedelta(days=1), time(18, 0, 0))
-        notify_day_before = tz.localize(notify_day_before)
-        
-        if notify_day_before >= now:
-            scheduler.add_job(
-                send_notification,
-                'date',
-                run_date=notify_day_before,
-                args=[token, f"Завтра день рождения у {person['fio']} ({person['department']})"]
-            )
-        
-        # Задача для отправки уведомления в день ДР в 9 утра по алматинскому времени
-        notify_birthday = datetime.combine(birthday, time(15, 58, 0))
-        notify_birthday = tz.localize(notify_birthday)
-        
-        if notify_birthday >= now:
-            scheduler.add_job(
-                send_notification,
-                'date',
-                run_date=notify_birthday,
-                args=[token, f"Сегодня день рождения у {person['fio']} ({person['department']})"]
-            )
+      
     logging.info(f'Scheduled notification for {person["fio"]} at {notify_birthday}')
     scheduler.start()
     # Запускаем бота
-    application.run_polling()
+    application.run_polling() 
+
+async def check_birthdays():
+    while True:
+        current_time = datetime.now(timezone('Asia/Almaty'))
+        # Проверяем, если сегодня день рождения у кого-то из списка
+        for person in people:
+            birthday_date = datetime.strptime(person['birthday'], '%Y-%m-%d').replace(year=current_time.year)
+            # Отправляем уведомление за день до дня рождения в 18:00
+            if (birthday_date.date() - current_time.date()).days == 1 and current_time.time() >= time(18, 0, 0):
+                message = f"Завтра день рождения у {person['fio']}!"
+                await send_notification('7313228037:AAHMJ_ZPVlzVJOkDcVkr58Dxuamz5oPqBUU', message)
+            # Отправляем уведомление в день дня рождения в 9:00
+            elif birthday_date.date() == current_time.date() and current_time.time() >= time(16, 8, 0):
+                message = f"Сегодня день рождения у {person['fio']}!"
+                await send_notification('7313228037:AAHMJ_ZPVlzVJOkDcVkr58Dxuamz5oPqBUU', message)
+        
+        # Ждем до полуночи, чтобы перепроверить
+        await asyncio.sleep((24 - current_time.hour - 1) * 3600 + (60 - current_time.minute) * 60)
+
 
 if __name__ == '__main__':
     main()
