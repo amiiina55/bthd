@@ -161,7 +161,7 @@ def main():
             )
         
         # Задача для отправки уведомления в день ДР в 9 утра по алматинскому времени
-        notify_birthday = datetime.combine(birthday, time(15, 30, 0))
+        notify_birthday = datetime.combine(birthday, time(15, 40, 0))
         notify_birthday = tz.localize(notify_birthday)
         
         if notify_birthday >= now:
@@ -171,7 +171,7 @@ def main():
                 run_date=notify_birthday,
                 args=[token, f"Сегодня день рождения у {person['fio']} ({person['department']})"]
             )
-    
+    logging.info(f'Scheduled notification for {person["fio"]} at {notify_birthday}')
     scheduler.start()
     # Запускаем бота
     application.run_polling()
